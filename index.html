@@ -3,711 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>سوبريزون - لعبة المنصات</title>
+    <title>سوبريزون - المراحل المتقدمة والمسدس</title>
     <style>
         * {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
-            background: linear-gradient(145deg, #0a1f2e 0%, #04131f 100%);
+            background: linear-gradient(145deg, #0a1f2e 0%, #030e17 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            font-family: 'Segoe UI', 'Press Start 2P', 'Courier New', monospace;
+            font-family: 'Segoe UI', 'Press Start 2P', monospace;
             margin: 0;
             padding: 20px;
         }
-
-        .game-wrapper {
-            background: rgba(0,0,0,0.5);
+        .game-container {
+            background: rgba(0,0,0,0.6);
             border-radius: 40px;
-            padding: 16px 24px 24px 24px;
-            box-shadow: 0 25px 40px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2);
-            backdrop-filter: blur(2px);
+            padding: 16px 24px 24px;
+            backdrop-filter: blur(3px);
+            box-shadow: 0 20px 30px black;
         }
-
         canvas {
             display: block;
             margin: 0 auto;
             border-radius: 24px;
-            box-shadow: 0 12px 28px black;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             cursor: pointer;
-            background: #7ec8ff;
         }
-
-        .game-header {
+        .info-bar {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 12px;
-            padding: 8px 20px;
-            background: #ffd966cc;
-            border-radius: 60px;
-            backdrop-filter: blur(8px);
-            color: #2c1e0f;
-            font-weight: bold;
-            gap: 20px;
+            align-items: center;
             flex-wrap: wrap;
+            margin-top: 12px;
+            gap: 12px;
+            background: #2c1e0faa;
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: #ffefb9;
         }
-
-        .game-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-            text-shadow: 3px 3px 0 #ff8c42;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, #ffd966, #ffb347);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: none;
-        }
-        .game-title span {
-            background: none;
-            color: #ffd966;
-            text-shadow: 2px 2px 0 #b45f1b;
-        }
-
         .stats {
             display: flex;
             gap: 24px;
-            background: #1e2a2ecc;
-            padding: 6px 20px;
-            border-radius: 40px;
-            color: #f9e45b;
-            font-size: 1.3rem;
             font-weight: bold;
+            font-size: 1.2rem;
         }
-
-        .controls {
-            background: #000000aa;
-            padding: 5px 16px;
+        .weapon-status {
+            background: #1e2a2e;
+            padding: 4px 16px;
             border-radius: 32px;
-            font-size: 0.8rem;
-            display: flex;
-            gap: 18px;
+            font-size: 0.9rem;
         }
-
         button {
             background: #e25822;
             border: none;
             color: white;
-            font-weight: bold;
-            padding: 6px 20px;
+            padding: 6px 18px;
             border-radius: 40px;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: 0.08s linear;
-            box-shadow: 0 4px 0 #6b2e00;
-            font-family: monospace;
+            box-shadow: 0 3px 0 #5a2a00;
+            transition: 0.05s linear;
         }
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #6b2e00;
-        }
-
-        .info-text {
-            text-align: center;
-            margin-top: 12px;
-            font-size: 0.75rem;
-            color: #dddddd;
-            background: #00000066;
+        button:active { transform: translateY(2px); box-shadow: 0 1px 0 #5a2a00; }
+        .mission {
+            background: #000000aa;
+            padding: 4px 12px;
             border-radius: 28px;
-            padding: 4px;
+            font-size: 0.75rem;
         }
-
-        @media (max-width: 860px) {
-            .game-title { font-size: 1.2rem; }
-            .stats { font-size: 1rem; gap: 12px; }
-            .controls { font-size: 0.65rem; }
+        @media (max-width: 800px) {
+            .stats { font-size: 0.9rem; gap: 12px; }
+            .weapon-status { font-size: 0.7rem; }
         }
     </style>
 </head>
 <body>
-<div class="game-wrapper">
-    <div class="game-header">
-        <div class="game-title">✨ سوبريزون ✨ <span style="font-size:0.8rem;">SUPREAZON</span></div>
-        <div class="stats">
-            <div>⭐ <span id="scoreValue">0</span></div>
-            <div>❤️ <span id="livesValue">3</span></div>
-        </div>
-        <div class="controls">
-            🎮 ← →  للتحرك &nbsp;|&nbsp; ⬆ / Space للقفز
-        </div>
-        <button id="resetButton">🔄 إعادة اللعبة</button>
+<div class="game-container">
+    <canvas id="gameCanvas" width="950" height="460"></canvas>
+    <div class="info-bar">
+        <div class="stats">⭐ <span id="scoreValue">0</span> &nbsp;| ❤️ <span id="livesValue">3</span> &nbsp;| 🎯 المرحلة <span id="levelNum">1</span></div>
+        <div class="weapon-status" id="weaponDisplay">🔫 مسدس: ❌</div>
+        <div class="mission" id="missionText">📜 المهمة: اجمع 5 عملات</div>
+        <button id="resetBtn">🔄 إعادة اللعبة</button>
     </div>
-    <canvas id="gameCanvas" width="900" height="450"></canvas>
-    <div class="info-text">
-        💡 اقفز على الأعداء للقضاء عليهم (+20) | اجمع العملات الذهبية (+10) | تجنب لمس الأعداء جانبياً | احصل على العلم 🔥
-    </div>
+    <div style="font-size:12px; text-align:center; margin-top:10px; color:#ccc;">🎮 ←→ تحرك | ⬆/Space قفز | 🔫 (إذا معك مسدس) اضغط X لإطلاق النار | 📦 الصناديق تعطيك مسدساً!</div>
 </div>
 
 <script>
     (function(){
-        // ------------------- إعدادات اللعبة المتطورة -------------------
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // أبعاد المستوى
-        const LEVEL_WIDTH = 2800;
-        const GROUND_Y = 410;   // مستوى الأرض (أسفل الشاشة canvas ارتفاع 450)
+        // ------------------- إعدادات الصوت (Web Audio) -------------------
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        function playSound(type) {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+            if (type === 'jump') { osc.frequency.value = 523.25; gain.gain.setValueAtTime(0.15, now); }
+            else if (type === 'coin') { osc.frequency.value = 880; osc.type = 'triangle'; gain.gain.setValueAtTime(0.1, now); }
+            else if (type === 'kill') { osc.frequency.value = 220; osc.type = 'sawtooth'; gain.gain.setValueAtTime(0.12, now); }
+            else if (type === 'hurt') { osc.frequency.value = 150; gain.gain.setValueAtTime(0.25, now); }
+            else if (type === 'powerup') { osc.frequency.value = 659.25; osc.type = 'square'; gain.gain.setValueAtTime(0.2, now); }
+            else if (type === 'shoot') { osc.frequency.value = 880; osc.type = 'triangle'; gain.gain.setValueAtTime(0.08, now); }
+            osc.start();
+            osc.stop(now + 0.3);
+        }
         
-        // اللاعب المحسن
-        const PLAYER_WIDTH = 32;
-        const PLAYER_HEIGHT = 36;
+        // ------------------- مراحل اللعبة -------------------
+        const LEVELS = [
+            {   // المرحلة 1: غابة
+                name: "غابة الأمل",
+                mission: { type: "collect", target: 5, current: 0 },  // جمع 5 عملات
+                startX: 80, startY: 0,
+                platforms: [
+                    { x: 0, y: 420, w: 2600, h: 40, type: 'ground' },
+                    { x: 200, y: 360, w: 70, h: 20, type: 'wood' },
+                    { x: 500, y: 320, w: 80, h: 20, type: 'brick' },
+                    { x: 850, y: 280, w: 90, h: 20, type: 'stone' },
+                    { x: 1200, y: 350, w: 80, h: 20, type: 'wood' },
+                    { x: 1700, y: 300, w: 100, h: 20, type: 'brick' },
+                    { x: 2200, y: 370, w: 70, h: 20, type: 'stone' }
+                ],
+                enemies: [
+                    { x: 300, y: 388, w: 32, h: 32, vx: 0.8, minX: 250, maxX: 520 },
+                    { x: 700, y: 388, w: 32, h: 32, vx: -1.0, minX: 600, maxX: 880 },
+                    { x: 1050, y: 248, w: 32, h: 32, vx: 0.9, minX: 960, maxX: 1200 },
+                    { x: 1900, y: 388, w: 32, h: 32, vx: 1.1, minX: 1800, maxX: 2100 }
+                ],
+                coins: [
+                    { x: 240, y: 330 }, { x: 540, y: 285 }, { x: 890, y: 245 }, { x: 1250, y: 315 }, { x: 1750, y: 265 }, { x: 2050, y: 340 }, { x: 2250, y: 335 }
+                ],
+                traps: [],   // لا مصائد في المرحلة 1
+                surpriseBoxes: [
+                    { x: 450, y: 290, w: 28, h: 28, opened: false, type: 'gun' },
+                    { x: 1550, y: 270, w: 28, h: 28, opened: false, type: 'gun' }
+                ],
+                flagX: 2520, flagY: 380
+            },
+            {   // المرحلة 2: صحراء مع مسامير وأعداء أكثر
+                name: "وادي الرمال",
+                mission: { type: "kill", target: 4, current: 0 },  // اقتل 4 أعداء
+                startX: 80, startY: 0,
+                platforms: [
+                    { x: 0, y: 420, w: 2800, h: 40, type: 'sand' },
+                    { x: 250, y: 370, w: 80, h: 20, type: 'brick' },
+                    { x: 600, y: 330, w: 70, h: 20, type: 'wood' },
+                    { x: 1000, y: 290, w: 100, h: 20, type: 'stone' },
+                    { x: 1450, y: 350, w: 80, h: 20, type: 'brick' },
+                    { x: 1900, y: 310, w: 90, h: 20, type: 'wood' },
+                    { x: 2400, y: 370, w: 80, h: 20, type: 'stone' }
+                ],
+                enemies: [
+                    { x: 320, y: 388, w: 32, h: 32, vx: 1.0, minX: 260, maxX: 560 },
+                    { x: 680, y: 388, w: 32, h: 32, vx: -1.2, minX: 580, maxX: 850 },
+                    { x: 1100, y: 258, w: 32, h: 32, vx: 0.9, minX: 1020, maxX: 1280 },
+                    { x: 1550, y: 318, w: 32, h: 32, vx: 1.1, minX: 1480, maxX: 1720 },
+                    { x: 2000, y: 278, w: 32, h: 32, vx: -0.8, minX: 1920, maxX: 2200 },
+                    { x: 2500, y: 388, w: 32, h: 32, vx: 1.0, minX: 2420, maxX: 2680 }
+                ],
+                coins: [
+                    { x: 290, y: 335 }, { x: 640, y: 295 }, { x: 1040, y: 255 }, { x: 1490, y: 315 }, { x: 1950, y: 275 }, { x: 2450, y: 335 }
+                ],
+                traps: [  // مصائد (مسامير)
+                    { x: 800, y: 410, w: 40, h: 15, damage: true },
+                    { x: 1350, y: 410, w: 50, h: 15, damage: true },
+                    { x: 2100, y: 410, w: 60, h: 15, damage: true }
+                ],
+                surpriseBoxes: [
+                    { x: 900, y: 300, w: 28, h: 28, opened: false, type: 'gun' },
+                    { x: 2300, y: 340, w: 28, h: 28, opened: false, type: 'gun' }
+                ],
+                flagX: 2720, flagY: 380
+            },
+            {   // المرحلة 3: قلعة الجليد – عوائق كثيرة ومسدس إجباري
+                name: "قلعة الجليد",
+                mission: { type: "collect", target: 7, current: 0 }, // جمع 7 عملات
+                startX: 80, startY: 0,
+                platforms: [
+                    { x: 0, y: 420, w: 3000, h: 40, type: 'ice' },
+                    { x: 180, y: 360, w: 70, h: 20, type: 'stone' },
+                    { x: 480, y: 310, w: 80, h: 20, type: 'brick' },
+                    { x: 850, y: 260, w: 90, h: 20, type: 'wood' },
+                    { x: 1250, y: 340, w: 80, h: 20, type: 'stone' },
+                    { x: 1700, y: 290, w: 100, h: 20, type: 'brick' },
+                    { x: 2200, y: 360, w: 80, h: 20, type: 'wood' },
+                    { x: 2650, y: 380, w: 70, h: 20, type: 'stone' }
+                ],
+                enemies: [
+                    { x: 280, y: 388, w: 32, h: 32, vx: 1.2, minX: 220, maxX: 500 },
+                    { x: 580, y: 278, w: 32, h: 32, vx: -1.0, minX: 520, maxX: 750 },
+                    { x: 950, y: 228, w: 32, h: 32, vx: 0.9, minX: 880, maxX: 1120 },
+                    { x: 1350, y: 308, w: 32, h: 32, vx: 1.1, minX: 1280, maxX: 1580 },
+                    { x: 1850, y: 258, w: 32, h: 32, vx: -1.0, minX: 1780, maxX: 2050 },
+                    { x: 2350, y: 388, w: 32, h: 32, vx: 1.0, minX: 2280, maxX: 2600 }
+                ],
+                coins: [
+                    { x: 220, y: 325 }, { x: 520, y: 275 }, { x: 890, y: 225 }, { x: 1290, y: 305 }, { x: 1750, y: 255 }, 
+                    { x: 2250, y: 325 }, { x: 2500, y: 345 }, { x: 2700, y: 350 }
+                ],
+                traps: [
+                    { x: 700, y: 410, w: 50, h: 15, damage: true },
+                    { x: 1200, y: 410, w: 60, h: 15, damage: true },
+                    { x: 1900, y: 410, w: 55, h: 15, damage: true },
+                    { x: 2400, y: 410, w: 70, h: 15, damage: true }
+                ],
+                surpriseBoxes: [
+                    { x: 400, y: 330, w: 28, h: 28, opened: false, type: 'gun' },
+                    { x: 1600, y: 260, w: 28, h: 28, opened: false, type: 'gun' },
+                    { x: 2550, y: 350, w: 28, h: 28, opened: false, type: 'gun' }
+                ],
+                flagX: 2920, flagY: 380
+            }
+        ];
+        
+        let currentLevelIdx = 0;      // 0-index
+        let levelData = null;
+        let gameActive = true, levelCompleted = false, gameOverFlag = false;
+        let score = 0, lives = 3;
+        let hasGun = false;
+        let bullets = [];    // {x, y, w, h, vx}
+        let missionProgress = 0;
+        
+        // عناصر اللاعب
+        const PLAYER_W = 32, PLAYER_H = 36;
         let player = {
-            x: 100,
-            y: 0,
-            vx: 0,
-            vy: 0,
-            width: PLAYER_WIDTH,
-            height: PLAYER_HEIGHT,
-            onGround: true,
-            facingRight: true,
-            invincibleTimer: 0   // للوميض بعد الإصابة
+            x: 80, y: 0, vx: 0, vy: 0, onGround: true, facingRight: true, invincibleTimer: 0
         };
         
-        // فيزياء ممتعة
-        const GRAVITY = 0.82;
-        const JUMP_POWER = -11.2;
-        const WALK_ACC = 0.85;
-        const MAX_SPEED = 5.6;
-        const FRICTION_AIR = 0.98;
-        const FRICTION_GROUND = 0.92;
+        // عناصر المستوى الديناميكية
+        let platforms = [], enemies = [], coins = [], traps = [], surpriseBoxes = [];
+        let flag = { x: 0, y: 0, reached: false };
         
-        // التحكم
-        const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, Space: false };
-        let canJump = true;
-        let jumpRequest = false;
-        
-        // متغيرات اللعبة
-        let score = 0;
-        let lives = 3;
-        let gameActive = true;
-        let levelCompleted = false;
-        let gameOverFlag = false;
+        // فيزياء
+        const GRAVITY = 0.82, JUMP = -11.2, WALK_ACC = 0.85, MAX_SPEED = 5.6, FRICTION_GROUND = 0.92, FRICTION_AIR = 0.98;
         let cameraX = 0;
+        const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, Space: false };
+        let canJump = true, jumpRequest = false;
         
-        // ---------- مستوى غني وجميل (منصات متنوعة) ----------
-        let platforms = [
-            { x: 0, y: GROUND_Y, w: LEVEL_WIDTH, h: 40, type: 'ground' },
-            { x: 180, y: 350, w: 70, h: 20, type: 'brick' },
-            { x: 430, y: 310, w: 80, h: 20, type: 'wood' },
-            { x: 750, y: 260, w: 90, h: 20, type: 'stone' },
-            { x: 1050, y: 320, w: 100, h: 20, type: 'brick' },
-            { x: 1400, y: 270, w: 70, h: 20, type: 'wood' },
-            { x: 1750, y: 340, w: 80, h: 20, type: 'stone' },
-            { x: 2150, y: 300, w: 80, h: 20, type: 'brick' },
-            { x: 2450, y: 360, w: 70, h: 20, type: 'wood' },
-            { x: 2650, y: 380, w: 60, h: 20, type: 'stone' }
-        ];
+        // مرجع canvas
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
         
-        // أعداء محسنون (شخصيات لطيفة)
-        let enemies = [
-            { x: 320, y: GROUND_Y - 32, w: 32, h: 32, vx: 0.85, minX: 240, maxX: 550, type: 'goomba' },
-            { x: 680, y: GROUND_Y - 32, w: 32, h: 32, vx: -1.0, minX: 580, maxX: 880, type: 'goomba' },
-            { x: 980, y: 228, w: 32, h: 32, vx: 0.9, minX: 880, maxX: 1150, type: 'goomba' },
-            { x: 1450, y: GROUND_Y - 32, w: 32, h: 32, vx: -1.1, minX: 1360, maxX: 1650, type: 'goomba' },
-            { x: 1880, y: 278, w: 32, h: 32, vx: 0.95, minX: 1800, maxX: 2080, type: 'goomba' },
-            { x: 2300, y: GROUND_Y - 32, w: 32, h: 32, vx: 1.0, minX: 2220, maxX: 2520, type: 'goomba' }
-        ];
-        
-        // عملات ذهبية متألقة
-        let coins = [
-            { x: 210, y: 320, w: 14, h: 14 }, { x: 460, y: 275, w: 14, h: 14 }, { x: 500, y: 275, w: 14, h: 14 },
-            { x: 790, y: 225, w: 14, h: 14 }, { x: 830, y: 225, w: 14, h: 14 }, { x: 1080, y: 285, w: 14, h: 14 },
-            { x: 1120, y: 285, w: 14, h: 14 }, { x: 1160, y: 285, w: 14, h: 14 }, { x: 1520, y: 330, w: 14, h: 14 },
-            { x: 1560, y: 330, w: 14, h: 14 }, { x: 1820, y: 300, w: 14, h: 14 }, { x: 1860, y: 300, w: 14, h: 14 },
-            { x: 2210, y: 265, w: 14, h: 14 }, { x: 2250, y: 265, w: 14, h: 14 }, { x: 2490, y: 325, w: 14, h: 14 },
-            { x: 2530, y: 325, w: 14, h: 14 }, { x: 2700, y: 345, w: 14, h: 14 }
-        ];
-        
-        // علم النهاية
-        let flag = { x: 2740, y: GROUND_Y - 58, w: 28, h: 58, reached: false };
-        let startPosition = { x: 100, y: 0 };
-        
-        // وظائف مساعدة
-        function updatePlayerStartY() {
-            for(let plat of platforms) {
-                if(startPosition.x + PLAYER_WIDTH > plat.x && startPosition.x < plat.x+plat.w) {
-                    startPosition.y = plat.y - PLAYER_HEIGHT;
-                    return;
-                }
-            }
-            startPosition.y = GROUND_Y - PLAYER_HEIGHT;
-        }
-        
-        function respawnPlayer() {
-            player.x = startPosition.x;
-            player.y = startPosition.y;
-            player.vx = 0;
-            player.vy = 0;
-            player.onGround = true;
-            player.invincibleTimer = 0;
-            canJump = true;
-            jumpRequest = false;
-        }
-        
-        function fullGameReset() {
-            gameActive = true;
-            levelCompleted = false;
-            gameOverFlag = false;
-            score = 0;
-            lives = 3;
-            updateUI();
-            resetCollectiblesAndEnemies();
-            flag.reached = false;
-            respawnPlayer();
-            cameraX = 0;
-            removeMessage();
-        }
-        
-        function resetCollectiblesAndEnemies() {
-            const originalCoins = [
-                { x: 210, y: 320, w: 14, h: 14 }, { x: 460, y: 275, w: 14, h: 14 }, { x: 500, y: 275, w: 14, h: 14 },
-                { x: 790, y: 225, w: 14, h: 14 }, { x: 830, y: 225, w: 14, h: 14 }, { x: 1080, y: 285, w: 14, h: 14 },
-                { x: 1120, y: 285, w: 14, h: 14 }, { x: 1160, y: 285, w: 14, h: 14 }, { x: 1520, y: 330, w: 14, h: 14 },
-                { x: 1560, y: 330, w: 14, h: 14 }, { x: 1820, y: 300, w: 14, h: 14 }, { x: 1860, y: 300, w: 14, h: 14 },
-                { x: 2210, y: 265, w: 14, h: 14 }, { x: 2250, y: 265, w: 14, h: 14 }, { x: 2490, y: 325, w: 14, h: 14 },
-                { x: 2530, y: 325, w: 14, h: 14 }, { x: 2700, y: 345, w: 14, h: 14 }
-            ];
-            coins.length = 0;
-            originalCoins.forEach(c => coins.push({...c}));
-            
-            const originalEnemies = [
-                { x: 320, y: GROUND_Y - 32, w: 32, h: 32, vx: 0.85, minX: 240, maxX: 550, type: 'goomba' },
-                { x: 680, y: GROUND_Y - 32, w: 32, h: 32, vx: -1.0, minX: 580, maxX: 880, type: 'goomba' },
-                { x: 980, y: 228, w: 32, h: 32, vx: 0.9, minX: 880, maxX: 1150, type: 'goomba' },
-                { x: 1450, y: GROUND_Y - 32, w: 32, h: 32, vx: -1.1, minX: 1360, maxX: 1650, type: 'goomba' },
-                { x: 1880, y: 278, w: 32, h: 32, vx: 0.95, minX: 1800, maxX: 2080, type: 'goomba' },
-                { x: 2300, y: GROUND_Y - 32, w: 32, h: 32, vx: 1.0, minX: 2220, maxX: 2520, type: 'goomba' }
-            ];
-            enemies.length = 0;
-            originalEnemies.forEach(e => enemies.push({...e}));
-        }
-        
+        // تحديث واجهة
         function updateUI() {
             document.getElementById('scoreValue').innerText = score;
             document.getElementById('livesValue').innerText = lives;
+            document.getElementById('levelNum').innerText = currentLevelIdx+1;
+            document.getElementById('weaponDisplay').innerHTML = hasGun ? "🔫 مسدس: ✅ (اضغط X)" : "🔫 مسدس: ❌";
+            let mission = levelData.mission;
+            let missionText = mission.type === 'collect' ? `📜 اجمع ${mission.target} عملة (${missionProgress}/${mission.target})` : `📜 اقتل ${mission.target} عدو (${missionProgress}/${mission.target})`;
+            document.getElementById('missionText').innerText = missionText;
         }
         
-        let messageTimeout = null;
-        function showMessage(text, isError = false) {
-            let msgDiv = document.getElementById('dynamicMessage');
-            if(!msgDiv) {
-                const div = document.createElement('div');
-                div.id = 'dynamicMessage';
-                div.style.position = 'fixed';
-                div.style.top = '30%';
-                div.style.left = '50%';
-                div.style.transform = 'translate(-50%, -50%)';
-                div.style.background = isError ? '#aa2222dd' : '#2c8e5edd';
-                div.style.backdropFilter = 'blur(12px)';
-                div.style.padding = '16px 28px';
-                div.style.borderRadius = '60px';
-                div.style.color = 'white';
-                div.style.fontSize = '1.6rem';
-                div.style.fontWeight = 'bold';
-                div.style.fontFamily = 'monospace';
-                div.style.zIndex = '100';
-                div.style.whiteSpace = 'nowrap';
-                document.body.appendChild(div);
-                msgDiv = div;
+        // تحميل بيانات المرحلة الحالية
+        function loadLevel(levelIndex) {
+            levelData = LEVELS[levelIndex];
+            // نسخ عميق للعناصر
+            platforms = JSON.parse(JSON.stringify(levelData.platforms));
+            enemies = JSON.parse(JSON.stringify(levelData.enemies));
+            coins = JSON.parse(JSON.stringify(levelData.coins));
+            traps = JSON.parse(JSON.stringify(levelData.traps || []));
+            surpriseBoxes = JSON.parse(JSON.stringify(levelData.surpriseBoxes || []));
+            flag = { x: levelData.flagX, y: levelData.flagY, reached: false };
+            // إعادة ضبط مهمة المرحلة
+            missionProgress = 0;
+            hasGun = false;
+            bullets = [];
+            // ضبط بداية اللاعب
+            let startX = levelData.startX;
+            let startY = levelData.startY;
+            // حساب Y المناسب
+            for(let plat of platforms) {
+                if(startX + PLAYER_W > plat.x && startX < plat.x+plat.w) {
+                    startY = plat.y - PLAYER_H;
+                    break;
+                }
             }
-            msgDiv.innerText = text;
-            msgDiv.style.display = 'block';
-            if(messageTimeout) clearTimeout(messageTimeout);
-            messageTimeout = setTimeout(() => { if(msgDiv) msgDiv.style.display = 'none'; }, 1700);
+            if(startY === 0) startY = 420 - PLAYER_H;
+            player = {
+                x: startX, y: startY, vx: 0, vy: 0, onGround: true, facingRight: true, invincibleTimer: 0
+            };
+            gameActive = true;
+            levelCompleted = false;
+            gameOverFlag = false;
+            cameraX = 0;
+            updateUI();
         }
         
-        function removeMessage() {
-            const msgDiv = document.getElementById('dynamicMessage');
-            if(msgDiv) msgDiv.style.display = 'none';
+        // إعادة تعيين كاملة
+        function fullReset() {
+            currentLevelIdx = 0;
+            score = 0;
+            lives = 3;
+            loadLevel(currentLevelIdx);
+            updateUI();
+            removeMessage();
         }
         
+        function nextLevel() {
+            if (currentLevelIdx + 1 < LEVELS.length) {
+                currentLevelIdx++;
+                loadLevel(currentLevelIdx);
+                playSound('powerup');
+                showMessage(`✨ المرحلة ${currentLevelIdx+1}: ${LEVELS[currentLevelIdx].name} ✨`, false);
+            } else {
+                showMessage("🏆 تهانينا! أكملت اللعبة بالكامل 🏆", false);
+                gameActive = false;
+                levelCompleted = true;
+            }
+        }
+        
+        // تحديث المهمة
+        function updateMission(progressDelta, type) {
+            if (levelData.mission.type === type) {
+                missionProgress += progressDelta;
+                if (missionProgress >= levelData.mission.target) {
+                    showMessage(`✅ اكتملت المهمة! انتقل إلى العلم ✅`, false);
+                    // لا ننهي المرحلة مباشرة، لكن العلم يصبح متاحاً (هو موجود)
+                }
+                updateUI();
+            }
+        }
+        
+        // خسارة حياة
         function loseLife() {
-            if(!gameActive || levelCompleted || gameOverFlag) return;
-            if(player.invincibleTimer > 0) return; // حماية قصيرة
+            if (!gameActive || levelCompleted || gameOverFlag) return;
+            if (player.invincibleTimer > 0) return;
+            playSound('hurt');
             lives--;
             updateUI();
-            if(lives <= 0) {
+            if (lives <= 0) {
                 gameActive = false;
                 gameOverFlag = true;
                 showMessage("💀 GAME OVER 💀", true);
             } else {
-                player.invincibleTimer = 40;  // وميض لمدة 40 إطار
-                respawnPlayer();
-                showMessage(`💔 خسرت حياة! ❤️ ${lives} متبقية`, true);
+                player.invincibleTimer = 40;
+                // إعادة اللاعب لبداية المرحلة
+                for(let plat of platforms) {
+                    if(levelData.startX + PLAYER_W > plat.x && levelData.startX < plat.x+plat.w) {
+                        player.y = plat.y - PLAYER_H;
+                        break;
+                    }
+                }
+                player.x = levelData.startX;
+                player.vy = 0;
+                player.vx = 0;
+                showMessage(`💔 خسرت حياة! متبقي ${lives}`, true);
             }
         }
         
-        function killEnemy(index) {
-            if(!gameActive) return;
+        // قتل عدو (من القفز أو الرصاص)
+        function killEnemy(idx) {
+            if (!gameActive) return;
             score += 20;
             updateUI();
-            enemies.splice(index,1);
-            showMessage("✨ +20 ✨", false);
+            enemies.splice(idx,1);
+            playSound('kill');
+            if (levelData.mission.type === 'kill') updateMission(1, 'kill');
+            showMessage("⚡ +20 ⚡", false);
         }
         
-        function collectCoin(index) {
-            if(!gameActive) return;
+        // جمع عملة
+        function collectCoin(idx) {
+            if (!gameActive) return;
             score += 10;
             updateUI();
-            coins.splice(index,1);
+            coins.splice(idx,1);
+            playSound('coin');
+            if (levelData.mission.type === 'collect') updateMission(1, 'collect');
         }
         
-        function completeLevel() {
-            if(levelCompleted) return;
-            levelCompleted = true;
-            gameActive = false;
-            showMessage("🏆 فزت! 🏆 سوبريزون ينتصر!", false);
+        // فتح صندوق مفاجأة
+        function openBox(box) {
+            if (box.opened) return;
+            box.opened = true;
+            playSound('powerup');
+            if (box.type === 'gun') {
+                hasGun = true;
+                showMessage("🎁 حصلت على مسدس! اضغط X لإطلاق النار 🎁", false);
+                updateUI();
+            }
         }
         
-        // تحديث الفيزياء والتصادم
+        // إطلاق رصاصة
+        function shoot() {
+            if (!gameActive || !hasGun) return;
+            playSound('shoot');
+            let dir = player.facingRight ? 1 : -1;
+            bullets.push({
+                x: player.x + (player.facingRight ? PLAYER_W : -10),
+                y: player.y + PLAYER_H/2 - 4,
+                w: 10, h: 6,
+                vx: dir * 9
+            });
+        }
+        
+        // تحديث الفيزياء والمنطق
         function updateGame() {
-            if(!gameActive) return;
+            if (!gameActive) return;
+            if (player.invincibleTimer > 0) player.invincibleTimer--;
             
-            // تحديث مؤشر الحصانة
-            if(player.invincibleTimer > 0) player.invincibleTimer--;
-            
-            // التحكم
+            // حركة
             let acc = 0;
-            if(keys.ArrowLeft) acc = -WALK_ACC;
-            if(keys.ArrowRight) acc = WALK_ACC;
+            if (keys.ArrowLeft) acc = -WALK_ACC;
+            if (keys.ArrowRight) acc = WALK_ACC;
             player.vx += acc;
-            if(Math.abs(player.vx) > MAX_SPEED) player.vx = player.vx > 0 ? MAX_SPEED : -MAX_SPEED;
-            if(player.onGround) player.vx *= FRICTION_GROUND;
+            if (Math.abs(player.vx) > MAX_SPEED) player.vx = player.vx > 0 ? MAX_SPEED : -MAX_SPEED;
+            if (player.onGround) player.vx *= FRICTION_GROUND;
             else player.vx *= FRICTION_AIR;
-            if(Math.abs(player.vx) < 0.2) player.vx = 0;
+            if (Math.abs(player.vx) < 0.2) player.vx = 0;
             
-            if((keys.ArrowUp || keys.Space) && player.onGround && canJump && !jumpRequest) {
-                player.vy = JUMP_POWER;
+            if ((keys.ArrowUp || keys.Space) && player.onGround && canJump && !jumpRequest) {
+                player.vy = JUMP;
                 player.onGround = false;
                 canJump = false;
                 jumpRequest = true;
+                playSound('jump');
             }
-            if(!keys.ArrowUp && !keys.Space) { jumpRequest = false; canJump = true; }
+            if (!keys.ArrowUp && !keys.Space) { jumpRequest = false; canJump = true; }
             
             player.vy += GRAVITY;
-            
             // تصادم أفقي
             player.x += player.vx;
             for(let plat of platforms) {
-                if(player.x + player.width > plat.x && player.x < plat.x + plat.w &&
-                   player.y + player.height > plat.y && player.y < plat.y + plat.h) {
-                    if(player.vx > 0) player.x = plat.x - player.width;
-                    else if(player.vx < 0) player.x = plat.x + plat.w;
+                if (player.x + PLAYER_W > plat.x && player.x < plat.x+plat.w && player.y+PLAYER_H > plat.y && player.y < plat.y+plat.h) {
+                    if (player.vx > 0) player.x = plat.x - PLAYER_W;
+                    else if (player.vx < 0) player.x = plat.x + plat.w;
                 }
             }
-            
-            // تصادم عمودي
+            // عمودي
             player.y += player.vy;
             player.onGround = false;
             for(let plat of platforms) {
-                if(player.x + player.width > plat.x && player.x < plat.x + plat.w &&
-                   player.y + player.height > plat.y && player.y < plat.y + plat.h) {
-                    if(player.vy >= 0 && (player.y + player.height - player.vy) <= plat.y + 12) {
-                        player.y = plat.y - player.height;
+                if (player.x + PLAYER_W > plat.x && player.x < plat.x+plat.w && player.y+PLAYER_H > plat.y && player.y < plat.y+plat.h) {
+                    if (player.vy >= 0 && (player.y+PLAYER_H - player.vy) <= plat.y+12) {
+                        player.y = plat.y - PLAYER_H;
                         player.vy = 0;
                         player.onGround = true;
-                    } else if(player.vy < 0 && player.y <= plat.y + plat.h) {
+                    } else if (player.vy < 0 && player.y <= plat.y+plat.h) {
                         player.y = plat.y + plat.h;
                         player.vy = 0;
                     }
                 }
             }
+            // حدود العالم
+            if (player.y + PLAYER_H > 460) { loseLife(); if(gameActive) player.y = 400; }
+            if (player.x < 25) player.x = 25;
+            if (player.x + PLAYER_W > 3000) player.x = 3000 - PLAYER_W;
+            if (player.vx !== 0) player.facingRight = player.vx > 0;
             
-            if(player.y + player.height > GROUND_Y + 45) {
-                loseLife();
-                if(gameActive) respawnPlayer();
-            }
-            if(player.x < 25) player.x = 25;
-            if(player.x + player.width > LEVEL_WIDTH - 25) player.x = LEVEL_WIDTH - player.width - 25;
-            if(player.vx !== 0) player.facingRight = player.vx > 0;
-            
-            // الأعداء المتحركون
-            for(let i=0; i<enemies.length; i++) {
+            // تحديث الأعداء وتصادمهم
+            for (let i=0; i<enemies.length; i++) {
                 let e = enemies[i];
                 e.x += e.vx;
-                if(e.x <= e.minX) { e.x = e.minX; e.vx = Math.abs(e.vx); }
-                if(e.x + e.w >= e.maxX) { e.x = e.maxX - e.w; e.vx = -Math.abs(e.vx); }
-                
-                if(player.invincibleTimer === 0 && !levelCompleted && gameActive) {
-                    if(player.x < e.x+e.w && player.x+player.width > e.x &&
-                       player.y < e.y+e.h && player.y+player.height > e.y) {
-                        let isJumpAttack = (player.vy > 0 && (player.y+player.height - player.vy) <= e.y+12);
-                        if(isJumpAttack) {
-                            killEnemy(i);
-                            i--;
-                            player.vy = -7;
-                            continue;
-                        } else {
-                            loseLife();
-                            if(gameActive) respawnPlayer();
-                            break;
-                        }
+                if (e.x <= e.minX) { e.x = e.minX; e.vx = Math.abs(e.vx); }
+                if (e.x + e.w >= e.maxX) { e.x = e.maxX - e.w; e.vx = -Math.abs(e.vx); }
+                if (player.invincibleTimer === 0 && !levelCompleted) {
+                    if (player.x < e.x+e.w && player.x+PLAYER_W > e.x && player.y < e.y+e.h && player.y+PLAYER_H > e.y) {
+                        let isJumpAttack = (player.vy > 0 && (player.y+PLAYER_H - player.vy) <= e.y+12);
+                        if (isJumpAttack) { killEnemy(i); i--; player.vy = -7; }
+                        else { loseLife(); if(gameActive) player.y = 400; break; }
                     }
                 }
             }
             
+            // الرصاص
+            for (let i=0; i<bullets.length; i++) {
+                bullets[i].x += bullets[i].vx;
+                if (bullets[i].x > 3000 || bullets[i].x + bullets[i].w < 0) { bullets.splice(i,1); i--; continue; }
+                let hit = false;
+                for (let j=0; j<enemies.length; j++) {
+                    let e = enemies[j];
+                    if (bullets[i].x < e.x+e.w && bullets[i].x+bullets[i].w > e.x &&
+                        bullets[i].y < e.y+e.h && bullets[i].y+bullets[i].h > e.y) {
+                        killEnemy(j);
+                        hit = true;
+                        break;
+                    }
+                }
+                if (hit) { bullets.splice(i,1); i--; }
+            }
+            
             // العملات
-            for(let i=0; i<coins.length; i++) {
+            for (let i=0; i<coins.length; i++) {
                 let c = coins[i];
-                if(player.x < c.x+c.w && player.x+player.width > c.x &&
-                   player.y < c.y+c.h && player.y+player.height > c.y) {
-                    collectCoin(i);
-                    i--;
+                if (player.x < c.x+14 && player.x+PLAYER_W > c.x && player.y < c.y+14 && player.y+PLAYER_H > c.y) {
+                    collectCoin(i); i--;
                 }
             }
-            
-            // العلم
-            if(!flag.reached && !levelCompleted) {
-                if(player.x + player.width > flag.x && player.x < flag.x+flag.w &&
-                   player.y + player.height > flag.y && player.y < flag.y+flag.h) {
+            // المصائد
+            for (let t of traps) {
+                if (player.x < t.x+t.w && player.x+PLAYER_W > t.x && player.y+PLAYER_H > t.y && player.y < t.y+t.h) {
+                    loseLife(); if(gameActive) player.y = 400;
+                }
+            }
+            // الصناديق
+            for (let box of surpriseBoxes) {
+                if (!box.opened && player.x < box.x+box.w && player.x+PLAYER_W > box.x && player.y+PLAYER_H > box.y && player.y < box.y+box.h) {
+                    openBox(box);
+                }
+            }
+            // العلم (يسمح بالانتقال فقط إذا اكتملت المهمة)
+            if (!flag.reached && !levelCompleted && missionProgress >= levelData.mission.target) {
+                if (player.x + PLAYER_W > flag.x && player.x < flag.x+28 && player.y+PLAYER_H > flag.y && player.y < flag.y+58) {
                     flag.reached = true;
-                    completeLevel();
+                    playSound('powerup');
+                    showMessage(`🎉 اجتياز المرحلة ${currentLevelIdx+1}! انتقل إلى التالي 🎉`, false);
+                    levelCompleted = true;
+                    gameActive = false;
+                    setTimeout(() => { nextLevel(); }, 500);
                 }
             }
-            
-            // الكاميرا
-            let targetCam = player.x + player.width/2 - canvas.width/2;
-            targetCam = Math.max(0, Math.min(targetCam, LEVEL_WIDTH - canvas.width));
+            // كاميرا
+            let targetCam = player.x + PLAYER_W/2 - canvas.width/2;
+            targetCam = Math.max(0, Math.min(targetCam, 3000 - canvas.width));
             cameraX = targetCam;
         }
         
-        // ------------------- رسم احترافي وجذاب -------------------
-        function drawBackground() {
-            // السماء المتدرجة
-            let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            grad.addColorStop(0, "#7ec8ff");
-            grad.addColorStop(0.7, "#5ba5d0");
-            ctx.fillStyle = grad;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // غيوم
-            ctx.fillStyle = "rgba(255,255,245,0.85)";
-            for(let i=0;i<5;i++) {
-                let cloudX = (i*270 - cameraX*0.3) % (canvas.width+400) - 200;
-                ctx.beginPath();
-                ctx.ellipse(cloudX, 50, 45, 35, 0, 0, Math.PI*2);
-                ctx.ellipse(cloudX+40, 40, 40, 32, 0, 0, Math.PI*2);
-                ctx.ellipse(cloudX-30, 45, 38, 30, 0, 0, Math.PI*2);
-                ctx.fill();
-            }
-            // تلال بعيدة
-            ctx.fillStyle = "#87b96a";
-            for(let t=0; t<5; t++) {
-                let hillX = (t*400 - cameraX*0.5) % (LEVEL_WIDTH+300) - 200;
-                ctx.beginPath();
-                ctx.moveTo(hillX, GROUND_Y-30);
-                ctx.quadraticCurveTo(hillX+70, GROUND_Y-90, hillX+140, GROUND_Y-30);
-                ctx.fill();
-            }
-        }
-        
-        function drawPlatforms() {
-            for(let plat of platforms) {
-                let drawX = plat.x - cameraX;
-                if(drawX + plat.w < 0 || drawX > canvas.width) continue;
-                if(plat.type === 'ground') {
-                    ctx.fillStyle = "#5b8c50";
-                    ctx.fillRect(drawX, plat.y, plat.w, plat.h);
-                    ctx.fillStyle = "#7caf5a";
-                    ctx.fillRect(drawX, plat.y, plat.w, 8);
-                    ctx.fillStyle = "#3c642a";
-                    for(let i=0;i<plat.w/30;i++) ctx.fillRect(drawX+i*30, plat.y-4, 12, 6);
-                } else if(plat.type === 'brick') {
-                    ctx.fillStyle = "#bc7a3c";
-                    ctx.fillRect(drawX, plat.y, plat.w, plat.h);
-                    ctx.fillStyle = "#d48c4a";
-                    ctx.fillRect(drawX, plat.y, plat.w, 6);
-                    for(let i=0;i<2;i++) ctx.fillRect(drawX+5+i*20, plat.y-2, 8, 4);
-                } else if(plat.type === 'wood') {
-                    ctx.fillStyle = "#a5682a";
-                    ctx.fillRect(drawX, plat.y, plat.w, plat.h);
-                    ctx.fillStyle = "#c08648";
-                    for(let i=0;i<3;i++) ctx.fillRect(drawX+5+i*25, plat.y+5, 5, 8);
-                } else if(plat.type === 'stone') {
-                    ctx.fillStyle = "#7f8c8d";
-                    ctx.fillRect(drawX, plat.y, plat.w, plat.h);
-                    ctx.fillStyle = "#95a5a6";
-                    ctx.fillRect(drawX+5, plat.y-3, plat.w-10, 6);
-                }
-            }
-        }
-        
-        function drawCoins() {
-            for(let c of coins) {
-                let drawX = c.x - cameraX;
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = "#ffcc44";
-                ctx.fillStyle = "#FFD700";
-                ctx.beginPath();
-                ctx.ellipse(drawX+c.w/2, c.y+c.h/2, c.w/1.6, c.h/1.6, 0, 0, Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = "#FFA500";
-                ctx.beginPath();
-                ctx.ellipse(drawX+c.w/2, c.y+c.h/2, c.w/2.8, c.h/2.8, 0, 0, Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = "white";
-                ctx.fillRect(drawX+c.w*0.35, c.y+c.h*0.35, 3, 3);
-                ctx.shadowBlur = 0;
-            }
-        }
-        
-        function drawEnemies() {
-            for(let e of enemies) {
-                let drawX = e.x - cameraX;
-                // جسد غومبا لطيف
-                ctx.fillStyle = "#8B5A2B";
-                ctx.fillRect(drawX, e.y, e.w, e.h);
-                ctx.fillStyle = "#5D3A1A";
-                ctx.fillRect(drawX+6, e.y+8, e.w-12, 12);
-                ctx.fillStyle = "white";
-                ctx.fillRect(drawX+7, e.y+18, 6, 6);
-                ctx.fillRect(drawX+e.w-13, e.y+18, 6, 6);
-                ctx.fillStyle = "black";
-                ctx.fillRect(drawX+8, e.y+19, 3, 3);
-                ctx.fillRect(drawX+e.w-12, e.y+19, 3, 3);
-                ctx.fillStyle = "#402818";
-                ctx.fillRect(drawX+10, e.y+e.h-10, e.w-20, 6);
-                // حواجب
-                ctx.fillStyle = "#4a2a1a";
-                ctx.fillRect(drawX+5, e.y+14, 7, 3);
-                ctx.fillRect(drawX+e.w-12, e.y+14, 7, 3);
-            }
-        }
-        
-        function drawFlag() {
-            let fX = flag.x - cameraX;
-            ctx.fillStyle = "#c0392b";
-            ctx.fillRect(fX, flag.y, 10, flag.h);
-            ctx.fillStyle = "#e67e22";
-            ctx.beginPath();
-            ctx.moveTo(fX+10, flag.y+12);
-            ctx.lineTo(fX+48, flag.y+28);
-            ctx.lineTo(fX+10, flag.y+44);
-            ctx.fill();
-            ctx.fillStyle = "#f1c40f";
-            ctx.font = "bold 24px monospace";
-            ctx.fillText("🏁", fX+18, flag.y+34);
-        }
-        
-        function drawPlayer() {
-            let pX = player.x - cameraX;
-            let inv = (player.invincibleTimer > 0 && (Math.floor(Date.now()/50) % 3 === 0));
-            if(inv) ctx.globalAlpha = 0.6;
-            // قبعة حمراء أنيقة
-            ctx.fillStyle = "#E63946";
-            ctx.fillRect(pX+4, player.y-12, 24, 14);
-            ctx.fillStyle = "#C1121F";
-            ctx.fillRect(pX+12, player.y-8, 8, 8);
-            // وجه
-            ctx.fillStyle = "#FDD7A4";
-            ctx.fillRect(pX+6, player.y+4, 20, 22);
-            // عيون كبيرة لطيفة
-            ctx.fillStyle = "#1f1f1f";
-            ctx.fillRect(pX+9, player.y+10, 5, 6);
-            ctx.fillRect(pX+18, player.y+10, 5, 6);
-            ctx.fillStyle = "white";
-            ctx.fillRect(pX+10, player.y+11, 2, 3);
-            ctx.fillRect(pX+19, player.y+11, 2, 3);
-            // خدود
-            ctx.fillStyle = "#F4A261";
-            ctx.fillRect(pX+7, player.y+18, 4, 3);
-            ctx.fillRect(pX+21, player.y+18, 4, 3);
-            // شارب
-            ctx.fillStyle = "#6B4226";
-            ctx.fillRect(pX+10, player.y+22, 12, 4);
-            // بدلة زرقاء
-            ctx.fillStyle = "#2A6F8F";
-            ctx.fillRect(pX+4, player.y+28, 24, 8);
-            ctx.fillStyle = "#1E4A6B";
-            ctx.fillRect(pX+10, player.y+32, 12, 5);
-            // حذاء بني
-            ctx.fillStyle = "#7B3F00";
-            ctx.fillRect(pX+6, player.y+player.height-6, 8, 6);
-            ctx.fillRect(pX+18, player.y+player.height-6, 8, 6);
-            ctx.globalAlpha = 1;
-            // اسم صغير على القبعة
-            ctx.font = "bold 8px monospace";
-            ctx.fillStyle = "#FFF9C4";
-            ctx.fillText("SZ", pX+13, player.y-4);
-        }
-        
-        function drawUIeffects() {
-            ctx.font = "bold 18px 'Press Start 2P', monospace";
-            ctx.fillStyle = "#FFE484";
-            ctx.shadowBlur = 0;
-            ctx.fillText("⚡ سوبريزون ⚡", canvas.width-150, 40);
-            ctx.font = "12px monospace";
-            ctx.fillStyle = "#2C1A0A";
-            ctx.fillText("→ ←  ⬆/Space", 18, 55);
-        }
-        
+        // رسم متطور
         function draw() {
-            drawBackground();
-            drawPlatforms();
-            drawCoins();
-            drawEnemies();
-            drawFlag();
-            drawPlayer();
-            drawUIeffects();
-            if(levelCompleted){
-                ctx.font = "bold 28px monospace";
-                ctx.fillStyle = "#FFD966";
-                ctx.shadowBlur = 4;
-                ctx.fillText("مستوى مكتمل!", canvas.width/2-130, 100);
-            } else if(gameOverFlag){
-                ctx.font = "bold 28px monospace";
-                ctx.fillStyle = "#AA2E1E";
-                ctx.fillText("انتهت اللعبة", canvas.width/2-100, 100);
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            // خلفية متدرجة حسب المرحلة
+            let grad = ctx.createLinearGradient(0,0,0,canvas.height);
+            if (currentLevelIdx===0) { grad.addColorStop(0,"#7ec8ff"); grad.addColorStop(1,"#4aa3df"); }
+            else if (currentLevelIdx===1) { grad.addColorStop(0,"#f7d794"); grad.addColorStop(1,"#e0a96b"); }
+            else { grad.addColorStop(0,"#b0d4ff"); grad.addColorStop(1,"#7ca5d0"); }
+            ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+            // منصات
+            for(let p of platforms){
+                let dx=p.x-cameraX;
+                if(p.type==='ground') ctx.fillStyle="#5b8c50";
+                else if(p.type==='sand') ctx.fillStyle="#d4a373";
+                else if(p.type==='ice') ctx.fillStyle="#a5d6ff";
+                else ctx.fillStyle="#bc7a3c";
+                ctx.fillRect(dx,p.y,p.w,p.h);
             }
-        }
-        
-        // الحلقة الرئيسية
-        function gameLoop() {
-            updateGame();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // أحداث لوحة المفاتيح
-        function handleKeyDown(e) {
-            if(e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === ' ') {
-                e.preventDefault();
+            // مصائد
+            for(let t of traps){
+                ctx.fillStyle="#aa2e1e"; ctx.fillRect(t.x-cameraX,t.y,t.w,t.h);
+                ctx.fillStyle="#d9534f"; for(let i=0;i<3;i++) ctx.fillRect(t.x-cameraX+5+i*10,t.y-4,4,8);
             }
-            if(e.key === 'ArrowLeft') keys.ArrowLeft = true;
-            if(e.key === 'ArrowRight') keys.ArrowRight = true;
-            if(e.key === 'ArrowUp') keys.ArrowUp = true;
-            if(e.key === ' ') { keys.Space = true; e.preventDefault(); }
+            // عملات
+            for(let c of coins){ ctx.fillStyle="#FFD966"; ctx.beginPath(); ctx.ellipse(c.x-cameraX+7,c.y+7,7,7,0,0,Math.PI*2); ctx.fill(); }
+            // صناديق
+            for(let b of surpriseBoxes){
+                if(!b.opened){ ctx.fillStyle="#a5673f"; ctx.fillRect(b.x-cameraX,b.y,b.w,b.h); ctx.fillStyle="#d48c4a"; ctx.fillRect(b.x-cameraX+4,b.y+4,20,20); ctx.fillStyle="gold"; ctx.font="bold 18px monospace"; ctx.fillText("?",b.x-cameraX+9,b.y+22);}
+            }
+            // أعداء
+            for(let e of enemies){
+                ctx.fillStyle="#8B5A2B"; ctx.fillRect(e.x-cameraX,e.y,e.w,e.h);
+                ctx.fillStyle="white"; ctx.fillRect(e.x-cameraX+7,e.y+18,6,6); ctx.fillRect(e.x-cameraX+e.w-13,e.y+18,6,6);
+                ctx.fillStyle="black"; ctx.fillRect(e.x-cameraX+8,e.y+19,3,3); ctx.fillRect(e.x-cameraX+e.w-12,e.y+19,3,3);
+            }
+            // رصاص
+            for(let b of bullets){ ctx.fillStyle="#FFA500"; ctx.fillRect(b.x-cameraX,b.y,b.w,b.h); }
+            // العلم
+            ctx.fillStyle="#c0392b"; ctx.fillRect(flag.x-cameraX,flag.y,10,58);
+            ctx.fillStyle="#e67e22"; ctx.beginPath(); ctx.moveTo(flag.x-cameraX+10,flag.y+12); ctx.lineTo(flag.x-cameraX+48,flag.y+28); ctx.lineTo(flag.x-cameraX+10,flag.y+44); ctx.fill();
+            // اللاعب
+            let px=player.x-cameraX;
+            ctx.fillStyle="#E63946"; ctx.fillRect(px+4,player.y-12,24,14);
+            ctx.fillStyle="#FDD7A4"; ctx.fillRect(px+6,player.y+4,20,22);
+            ctx.fillStyle="black"; ctx.fillRect(px+9,player.y+10,5,6); ctx.fillRect(px+18,player.y+10,5,6);
+            ctx.fillStyle="#2A6F8F"; ctx.fillRect(px+4,player.y+28,24,8);
+            if(hasGun){ ctx.fillStyle="#555"; ctx.fillRect(px+28,player.y+20,12,6); }
         }
         
-        function handleKeyUp(e) {
-            if(e.key === 'ArrowLeft') keys.ArrowLeft = false;
-            if(e.key === 'ArrowRight') keys.ArrowRight = false;
-            if(e.key === 'ArrowUp') keys.ArrowUp = false;
-            if(e.key === ' ') { keys.Space = false; e.preventDefault(); }
+        function showMessage(text, isErr){
+            let mDiv=document.getElementById('msgToast');
+            if(!mDiv){ let d=document.createElement('div'); d.id='msgToast'; d.style.position='fixed'; d.style.bottom='20%'; d.style.left='50%'; d.style.transform='translateX(-50%)'; d.style.background='#000000cc'; d.style.color='gold'; d.style.padding='8px 20px'; d.style.borderRadius='40px'; d.style.fontWeight='bold'; d.style.zIndex='999'; document.body.appendChild(d); mDiv=d; }
+            mDiv.innerText=text; mDiv.style.display='block'; setTimeout(()=>{ if(mDiv) mDiv.style.display='none'; },1500);
         }
+        function removeMessage(){ let m=document.getElementById('msgToast'); if(m) m.style.display='none'; }
         
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-        document.getElementById('resetButton').addEventListener('click', () => {
-            fullGameReset();
-            gameActive = true;
-            levelCompleted = false;
-            gameOverFlag = false;
-            removeMessage();
-            respawnPlayer();
+        // أحداث
+        window.addEventListener('keydown', (e)=>{
+            if(e.key==='ArrowLeft'||e.key==='ArrowRight'||e.key==='ArrowUp'||e.key===' '||e.key==='x'||e.key==='X') e.preventDefault();
+            if(e.key==='ArrowLeft') keys.ArrowLeft=true;
+            if(e.key==='ArrowRight') keys.ArrowRight=true;
+            if(e.key==='ArrowUp') keys.ArrowUp=true;
+            if(e.key===' ') keys.Space=true;
+            if(e.key==='x'||e.key==='X') shoot();
         });
-        
-        updatePlayerStartY();
-        player.y = startPosition.y;
-        player.x = startPosition.x;
-        fullGameReset();
-        updateUI();
-        gameLoop();
+        window.addEventListener('keyup', (e)=>{
+            if(e.key==='ArrowLeft') keys.ArrowLeft=false;
+            if(e.key==='ArrowRight') keys.ArrowRight=false;
+            if(e.key==='ArrowUp') keys.ArrowUp=false;
+            if(e.key===' ') keys.Space=false;
+        });
+        document.getElementById('resetBtn').addEventListener('click', ()=>{ fullReset(); });
+        fullReset();
+        function animate(){ updateGame(); draw(); requestAnimationFrame(animate); }
+        animate();
+        // تنشيط الصوت عند أول تفاعل
+        canvas.addEventListener('click', ()=>{ if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); });
     })();
 </script>
 </body>
