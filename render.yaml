@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: student-exit-tracker
+    runtime: node
+    plan: starter
+    buildCommand: ""
+    startCommand: node server.js
+    envVars:
+      - key: DATA_DIR
+        value: /data
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
